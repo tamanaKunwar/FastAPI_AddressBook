@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from utilities import Address, execute_query, calculations
+from utilities import Address, execute_query, check_distance
 import configparser
 
 config = configparser.ConfigParser()
@@ -20,7 +20,6 @@ def create_address(address:Address):
 
 @app.put('/update-address/{id}')
 def update_address(id, address:Address):
-    id = id
     data = address.dict()
     query = config["DATABASE"]["UPDATE_ADDRESS"]
     query = query.format(latitude=data['latitude'], longitude=data['longitude'], id=id)
@@ -30,7 +29,6 @@ def update_address(id, address:Address):
 
 @app.get('/get-address/{id}')
 def get_address(id):
-    id = id
     query = config["DATABASE"]["GET_ADDRESS"]
     query = query.format(id=id)
     response = execute_query(query)
@@ -47,22 +45,17 @@ def get_address(id):
 
 @app.get('/get-addresses-within-distance')
 def get_addresses_within_distance(latitude, longitude, distance):
-    db = []
-    latitude = latitude
-    longitude = longitude
-    distance = distance
-    base_query =  'SELECT * FROM address'
-    all_addresses = execute_query(base_query)
-    query = config["DATABASE"]["GET_ADDRESS_WITHIN_DISTANCE"]
-
+    query = config["DATABASE"]["GET_ALL_ADDRESSES"]
+    all_addresses = execute_query(query)
+    returned_list = []
     for each_record in all_addresses:
-        calculated_result  = calculations(latitude=latitude, longitude=longitude,lat=each_record[1],lng=each_record[1])
-        query = query.format(value=calculated_result, distance=distance)
-        print("********")
-        print(query)
-        response = execute_query(query)
-        db.append(response)
-    return db
+        is_within_distance  = check_distance(latitude=latitude, longitude=longitude, distance=distance,
+                                             lat=each_record[1], lng=each_record[2])
+        if is_within_distance:
+            returned_list.append({
+                'latitude': each_record[1],
+                'longitude': each_record[2]})
+    return returned_list
 
 
 @app.delete('/delete-addresses')

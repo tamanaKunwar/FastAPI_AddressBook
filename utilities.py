@@ -21,21 +21,21 @@ def execute_query(query):
         return response
 
 
-def calculations(latitude, longitude, lat, lng):
-    print("^^^^^^^^^^^^^^^")
-    print(latitude)
-    d = radians(latitude)
-
-    print(d)
-    print(type(radians(latitude)))
+'''
+    Calculating the dictance using haversine formula
+    Checking if the each_row lat, long distance is <= target distance then returning True 
+'''
+def check_distance(latitude, longitude, lat, lng, distance):
+    latitude = float(latitude)
+    longitude = float(longitude)
 
     result = 3959 * acos(
-        cos(radians({float(latitude)}))
+        cos(radians(latitude))
         * cos(radians(lat))
-        * cos(radians(lng) - radians({longitude}))
-        + sin(radians({latitude}))
+        * cos(radians(lng) - radians(longitude))
+        + sin(radians(latitude))
         * sin(radians(lat))
     )
-    print("5555555555555555555555555555555")
-    print(result)
-    return result
+    if result <= distance:
+        return True
+    return False
