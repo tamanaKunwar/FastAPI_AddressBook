@@ -3,8 +3,8 @@ from utilities import Address, execute_query, check_distance
 import configparser
 import logging
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = logging.getLogger()
+logging.basicConfig(level=logging.INFO)
 
 config = configparser.ConfigParser()
 config.read('config.ini')
